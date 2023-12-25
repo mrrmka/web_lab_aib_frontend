@@ -1,24 +1,35 @@
-input_file = open('input.txt')
-input_text = input_file.read().split()
-Count_numbers = int(input_text[0])
-input_text.pop(0)
-input_text = [int (x) for x in input_text]
+import heapq
+from collections import deque
 
-def Sequence(sum_medians, sub_sequence_length, func_input_text):
-    temp_sequence = func_input_text[:sub_sequence_length]
-    temp_sequence.sort()
-    if len(temp_sequence) % 2 == 1:
-        if len(temp_sequence) == 1:
-            sum_medians += temp_sequence[0]
-        else:
-            sum_medians +=  temp_sequence[((len(temp_sequence) + 1) // 2) - 1]
-    elif len(temp_sequence) % 2 == 0:
-        sum_medians += temp_sequence[(len(temp_sequence) // 2) - 1]
-    sub_sequence_length += 1
-    if sub_sequence_length > Count_numbers:
-        return sum_medians
-    else:
-        return Sequence(sum_medians, sub_sequence_length, func_input_text)
 
-output_file = open('output.txt', 'w')
-output_file.write(str(Sequence(0, 1, input_text)))
+def input_data():
+    try:
+        with open("input2.txt", "r") as file:
+            n, arr = int(file.readline()), list(map(int, file.readline().split()))
+    except FileNotFoundError:
+        print("Файл input.txt не найден.")
+        n, arr = int(input()), list(map(int, input().split()))
+    return n, arr
+
+
+def update_heaps(max_heap, min_heap, element):
+    heapq.heappush(max_heap, -element)
+    heapq.heappush(min_heap, -heapq.heappop(max_heap))
+
+    if len(min_heap) > len(max_heap):
+        heapq.heappush(max_heap, -heapq.heappop(min_heap))
+
+
+def median_sum(n, arr):
+    max_heap, min_heap, result_sum = [], [], 0
+
+    for i in range(n):
+        update_heaps(max_heap, min_heap, arr[i])
+        result_sum -= max_heap[0]
+
+    return result_sum
+
+
+if __name__ == "__main__":
+    n, arr = input_data()
+    print(median_sum(n, arr))
